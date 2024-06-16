@@ -21,7 +21,6 @@ def load_data(data_file):
 
 
 def preprocessing_linear_regression(data, predict=False):
-    # dropping useless columns and rows with wrong values
     data_lr = data.drop(columns=['depth', 'table', 'y', 'z'])
     data_lr = data_lr[(data_lr.x != 0)]
     if not predict:
@@ -170,7 +169,7 @@ def objective(trial: optuna.trial.Trial, X_train_xgb, y_train_xgb) -> float:
 
     return mae
 
-# Load the latest model from the models directory
+# load the latest model from the models directory
 
 
 def get_latest_model(model_type, directory='models'):
@@ -192,3 +191,25 @@ def get_latest_model(model_type, directory='models'):
             f"No file found in {latest_subdir}")
 
     return joblib.load(latest_model_path)
+
+
+def get_similar_diamonds(diamonds, cut, color, clarity, carat, n=6):
+    diamonds_sorted = diamonds.copy()
+
+    diamonds_sorted['carat_diff'] = np.abs(diamonds_sorted['carat'] - carat)
+
+    # sort by carat difference
+    diamonds_sorted = diamonds_sorted.sort_values('carat_diff')
+
+    # get the top n similar diamonds with the same cut, color and clarity
+    similar_diamonds = diamonds_sorted[
+        (diamonds_sorted['cut'] == cut) &
+        (diamonds_sorted['color'] == color) &
+        (diamonds_sorted['clarity'] == clarity)
+    ]
+
+    similar_diamonds = similar_diamonds.drop(columns='carat_diff')
+
+    similar_diamonds = similar_diamonds.head(n)
+
+    return similar_diamonds

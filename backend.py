@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from utils import get_latest_model, preprocessing_xgb
+from utils import get_latest_model, preprocessing_xgb, get_similar_diamonds
 
 app = Flask(__name__)
 
@@ -31,7 +31,7 @@ with app.app_context():
 
 model_xgb = get_latest_model('xgb')
 
-data = pd.read_csv('data/diamonds.csv')
+diamonds = pd.read_csv('data/diamonds.csv')
 
 # function for saving request and response data to the database
 
@@ -46,9 +46,15 @@ def save_request_response(endpoint, request_data, response_data):
     db.session.commit()
 
 
+# predict the price of a diamond given its features
+
 @app.route('/predict', methods=['POST'])
 def predict_diamond_value():
     data = request.json
+
+    if 'carat' not in data or 'cut' not in data or 'color' not in data or 'clarity' not in data or 'depth' not in data or 'table' not in data or 'x' not in data or 'y' not in data or 'z' not in data:
+        return jsonify({'error': 'Missing data'})
+
     carat = data['carat']
     cut = data['cut']
     color = data['color']
@@ -79,28 +85,31 @@ def predict_diamond_value():
     save_request_response(f'/predict', data, response)
     return jsonify(response)
 
-#  TODO: COMPLETE THIS
+# given the features of a diamond, return n samples from the training dataset with the same cut, color, and clarity, and the most similar weight.
 
 
 @app.route('/similar-diamonds', methods=['POST'])
-def get_similar_diamonds():
+def similar_diamonds():
     data = request.json
+    if 'cut' not in data or 'color' not in data or 'clarity' not in data or 'carat' not in data:
+        return jsonify({'error': 'Missing data'})
+
     cut = data['cut']
     color = data['color']
     clarity = data['clarity']
     carat = data['carat']
 
-    similar_diamonds = data[
-        (data['cut'] == cut) &
-        (data['color'] == color) &
-        (data['clarity'] == clarity) &
-        (data['carat'].between(carat - 0.1, carat + 0.1))
-    ].sample(n=5)
+    similar_diamonds = get_similar_diamonds(
+        diamonds, cut, color, clarity, carat, n=5)
 
-    similar_diamonds_json = similar_diamonds.to_json(orient='records')
+    if similar_diamonds.empty:
+        response = jsonify({'error': 'No similar diamonds found'})
 
-    response = similar_diamonds_json
+    else:
+        response = similar_diamonds.to_json(orient='records')
+
     save_request_response('/similar-diamonds', data, response)
+
     return response
 
 
