@@ -167,4 +167,9 @@ cython_debug/
 /.idea/vcs.xml
 /.idea/xtream-ai-assignment-developer.iml
 
+# macOs system files
 .DS_Store
+
+# models and db folders
+models
+instance
