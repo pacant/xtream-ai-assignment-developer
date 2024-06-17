@@ -108,9 +108,8 @@ The predictions are made with the last trained model.
 
 - endpoint : '/predict'
 - method: POST
-- request:
+- request example:
 ```JSON
-# example of request body in JSON:
 {
     "carat": 0.3,
     "cut": "Ideal",
@@ -123,9 +122,8 @@ The predictions are made with the last trained model.
     "z": 2.45
 }
 ```
-- response:
+- response example:
 ```JSON
-# example of response body in JSON:
 {
     "predicted_price" : "320"
 }
@@ -134,9 +132,8 @@ The predictions are made with the last trained model.
 #### Get similar diamonds
 - endpoint: '/similar-diamonds
 - method: POST
-- request: 
+- request example: 
 ```JSON
-# example of request body in JSON:
 {
     "carat": 0.3,
     "cut": "Ideal",
@@ -144,9 +141,8 @@ The predictions are made with the last trained model.
     "clarity": "SI2"
 }
 ```
-- response:
+- response example:
 ```JSON
-# example of response body in JSON:
 [
     {
         "carat": 0.3,
