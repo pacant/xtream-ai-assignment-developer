@@ -80,7 +80,7 @@ def predict_diamond_value():
     input_data = preprocessing_xgb(input_data, predict=True)
     predicted_price = model_xgb.predict(input_data)[0]
 
-    response = {'predicted_price': str(predicted_price)}
+    response = {'predicted_price': f"{int(predicted_price)}$"}
 
     save_request_response(f'/predict', data, response)
     return jsonify(response)

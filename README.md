@@ -69,3 +69,103 @@ Observability is key. Save every request and response made to the APIs to a **pr
 
 ## How to run
 🦎
+
+After cloning the repository:
+
+### 0. (Optional) Create a virtual environment 
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+### 1. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Training and evaluate the model
+```bash
+python pipeline.py [--csv CSV_file] [--model {linear_regression,xgb}]
+```
+
+- '--csv': Path of the .csv dataset. (default: data/diamonds.csv)
+- '--model': Model type to train. (default: linear_regression)
+
+The trained model will be saved into _models_ directory.
+### 3. Run the server
+```bash
+python backend.py
+```
+The server will be available at http://127.0.0.1:5000/.
+
+Be sure to have a trained model into _models_ directory.
+The predictions are made with the last trained model.
+
+### 4. API endpoints
+
+#### Predict diamond price
+
+- endpoint : '/predict'
+- method: POST
+- request:
+```JSON
+# example of request body in JSON:
+{
+    "carat": 0.3,
+    "cut": "Ideal",
+    "color": "E",
+    "clarity": "SI2",
+    "depth": 61.1,
+    "table": 56.0,
+    "x": 3.90,
+    "y": 4.03,
+    "z": 2.45
+}
+```
+- response:
+```JSON
+# example of response body in JSON:
+{
+    "predicted_price" : "320"
+}
+```
+
+#### Get similar diamonds
+- endpoint: '/similar-diamonds
+- method: POST
+- request: 
+```JSON
+# example of request body in JSON:
+{
+    "carat": 0.3,
+    "cut": "Ideal",
+    "color": "E",
+    "clarity": "SI2"
+}
+```
+- response:
+```JSON
+# example of response body in JSON:
+[
+    {
+        "carat": 0.3,
+        "cut": "Ideal",
+        "color": "E",
+        "clarity": "SI2",
+        "depth": 61.1,
+        "table": 56.0,
+        "x": 3.90,
+        "y": 4.03,
+        "z": 2.45
+    },
+    ...
+]
+```
+
+You can simulate the API calls with Postman or Curl.
+
+### Some considerations
+- The predictions in the API calls are made with xgb with optimized hyperparameters, this is for two reasons:
+    - to not let the developer choose the model (and xgb has better metrics).
+    - the implementation of the predictions with linear_regressor is a bit more complicated, due to the fact that the one-hot encoding creates a new column for each unique value of a categorical feature. This encoding is different if applied to new data to predict. Maybe a solution could be saving and loading the encoder model or hard-coding the unique values for the categories.
