@@ -77,7 +77,7 @@ def predict_diamond_value():
         'z': [z],
     })
 
-    input_data = preprocessing_xgb(input_data, predict=True)
+    input_data = preprocessing_xgb(input_data)
     predicted_price = model_xgb.predict(input_data)[0]
 
     response = {'predicted_price': f"{int(predicted_price)}$"}

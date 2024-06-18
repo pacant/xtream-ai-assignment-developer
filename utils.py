@@ -12,42 +12,64 @@ import glob
 
 
 # load csv file into a dataframe
+
 def load_data(data_file):
     data = pd.read_csv(data_file)
     return data
 
+# replace missing values with the median for numeric columns and the mode for categorical columns
 
-# drop columns depth, table, y, z and one-hot encode cut, color and clarity
+
+def replace_missing_values(data):
+    # drop rows with missing target value
+    data = data.dropna(subset=['price'])
+    # drop rows with more than 2 missing values
+    data = data.dropna(thresh=len(data.columns) - 2)
+
+    numeric_cols = data.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
+        if data[col].isnull().any():
+            data[col].fillna(data[col].median(), inplace=True)
+
+    categorical_cols = data.select_dtypes(
+        include=['object', 'category']).columns
+    for col in categorical_cols:
+        if data[col].isnull().any():
+            data[col].fillna(data[col].mode()[0], inplace=True)
+    return data
+
+# general preprocessing: drop rows with missing values, drop rows with price <= 0 and with wrong dimensions
 
 
-def preprocessing_linear_regression(data, predict=False):
-    data_lr = data.drop(columns=['depth', 'table', 'y', 'z'])
-    data_lr = data_lr[(data_lr.x != 0)]
-    if not predict:
-        data_lr = data_lr[data_lr.price > 0]
+def preprocessing(data):
+    data_pre = data[(data.x * data.y * data.z != 0)]
 
-    # drop rows with missing values
-    if data_lr.isnull().any().any():
-        data_lr = data_lr.dropna()
+    if 'price' in data_pre.columns:
+        data_pre = data_pre[data_pre.price > 0]
+
+    if data_pre.isnull().any().any():
+        data_pre = replace_missing_values(data_pre)
+
+    return data_pre
+
+# preprocessing for linear regression: drop columns depth, table, y, z and one-hot encode cut, color and clarity
+
+
+def preprocessing_linear_regression(data):
+    data_lr = preprocessing(data)
+
+    data_lr = data_lr.drop(columns=['depth', 'table', 'y', 'z'])
 
     data_lr = pd.get_dummies(
         data_lr, columns=['cut', 'color', 'clarity'], drop_first=True)
 
     return data_lr
 
-# convert cut, color and clarity to ordered categorical (if predict=True the preprocessing is for predictions)
+# preprocessing for xgb: convert cut, color and clarity to ordered categorical
 
 
-def preprocessing_xgb(data, predict=False):
-    # dropping rows with missing values
-    if data.isnull().any().any():
-        data_xgb = data.dropna()
-    else:
-        data_xgb = data.copy()
-
-    data_xgb = data_xgb[(data_xgb.x * data_xgb.y * data_xgb.z != 0)]
-    if not predict:
-        data_xgb = data_xgb[data_xgb.price > 0]
+def preprocessing_xgb(data):
+    data_xgb = preprocessing(data)
 
     data_xgb['cut'] = pd.Categorical(data_xgb['cut'], categories=[
                                      'Fair', 'Good', 'Very Good', 'Ideal', 'Premium'], ordered=True)
