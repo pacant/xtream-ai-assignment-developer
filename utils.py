@@ -87,25 +87,18 @@ def train_xgb(X_train, y_train):
 def score_model(y_test, y_pred):
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
-    print(f'R2 Score: {round(r2, 4)}')
-    print(f'MAE: {round(mae, 2)}$')
-    return mae, r2
-# evaluate the linear regression model
-
-
-def evaluate_model_lr(model, X_test, y_test):
-    y_pred_log = model.predict(X_test)
-    y_pred = np.exp(y_pred_log)
-    mae, r2 = score_model(y_test, y_pred)
     return mae, r2
 
-# evaluate the xgb model
+# evaluate the linear regression model (log_transf=True if the model was trained with the log of the target variable)
 
 
-def evaluate_model_xgb(model, X_test, y_test):
+def evaluate_model(model, X_test, y_test, log_transf=False):
     y_pred = model.predict(X_test)
+    if log_transf:
+        y_pred = np.exp(y_pred)
     mae, r2 = score_model(y_test, y_pred)
     return mae, r2
+
 
 # save the model to a file in the models directory
 
@@ -120,21 +113,22 @@ def save_model(model, model_type,  mae, r2, directory='models'):
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
 
-    file_directory = os.path.join(model_directory, f"{model_type}_{timestamp}")
+    model_timestamp = f"{model_type}_{timestamp}"
+    file_directory = os.path.join(model_directory, model_timestamp)
     if not os.path.exists(file_directory):
         os.makedirs(file_directory)
 
-    model_name = "model.pkl"
-    model_path = os.path.join(file_directory, model_name)
+    model_path = os.path.join(file_directory, "model.pkl")
 
     joblib.dump(model, model_path)
 
     log_file = os.path.join(
         file_directory, "metrics.log")
     with open(log_file, 'a') as f:
-        f.write(f"Model: {model_name}\n")
+        f.write(f"Model: {model_timestamp}\n")
         f.write(f"MAE: {round(mae,2)}\n")
         f.write(f"R2: {round(r2,4)}\n\n")
+    print(f"Model and metrics saved in {file_directory}")
 
 
 # Function for Optuna to optimize hyperparameters

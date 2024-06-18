@@ -46,7 +46,7 @@ def save_request_response(endpoint, request_data, response_data):
     db.session.commit()
 
 
-# predict the price of a diamond given its features
+# predict the price of a diamond with xgb given its features
 
 @app.route('/predict', methods=['POST'])
 def predict_diamond_value():

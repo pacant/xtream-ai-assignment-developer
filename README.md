@@ -86,21 +86,20 @@ pip install -r requirements.txt
 
 ### 2. Training and evaluate the model
 ```bash
-python pipeline.py [--csv CSV_file] [--model {linear_regression,xgb}]
+python pipeline.py [--csv CSV_file]
 ```
 
 - '--csv': Path of the .csv dataset. (default: data/diamonds.csv)
-- '--model': Model type to train. (default: linear_regression)
 
-The trained model will be saved into _models_ directory.
+The trained models will be saved into _models_ directory.
 ### 3. Run the server
 ```bash
 python backend.py
 ```
 The server will be available at http://127.0.0.1:5000/.
 
-Be sure to have a trained model into _models_ directory.
-The predictions are made with the last trained model.
+Be sure to have an xgb trained model into _models_ directory.
+The predictions are made with the last xgb trained model.
 
 ### 4. API endpoints
 
@@ -151,6 +150,7 @@ The predictions are made with the last trained model.
         "clarity": "SI2",
         "depth": 61.1,
         "table": 56.0,
+        "price": 764,
         "x": 3.90,
         "y": 4.03,
         "z": 2.45
