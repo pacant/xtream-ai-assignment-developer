@@ -52,8 +52,9 @@ def save_request_response(endpoint, request_data, response_data):
 def predict_diamond_value():
     data = request.json
 
-    if 'carat' not in data or 'cut' not in data or 'color' not in data or 'clarity' not in data or 'depth' not in data or 'table' not in data or 'x' not in data or 'y' not in data or 'z' not in data:
-        return jsonify({'error': 'Missing data'})
+    valid, error = validate_predict_diamond_value(data)
+    if not valid:
+        return jsonify({'error': error}), 400
 
     carat = data['carat']
     cut = data['cut']
@@ -91,16 +92,19 @@ def predict_diamond_value():
 @app.route('/similar-diamonds', methods=['POST'])
 def similar_diamonds():
     data = request.json
-    if 'cut' not in data or 'color' not in data or 'clarity' not in data or 'carat' not in data:
-        return jsonify({'error': 'Missing data'})
+
+    valid, error = validate_similar_diamonds(data)
+    if not valid:
+        return jsonify({'error': error}), 400
 
     cut = data['cut']
     color = data['color']
     clarity = data['clarity']
     carat = data['carat']
+    n = data['n']
 
     similar_diamonds = get_similar_diamonds(
-        diamonds, cut, color, clarity, carat, n=5)
+        diamonds, cut, color, clarity, carat, n)
 
     if similar_diamonds.empty:
         response = jsonify({'error': 'No similar diamonds found'})
@@ -111,6 +115,58 @@ def similar_diamonds():
     save_request_response('/similar-diamonds', data, response)
 
     return response
+
+# validate the data type for the similar-diamonds endpoint
+
+
+def validate_similar_diamonds(data):
+    required_fields = {
+        'n': int,
+        'cut': str,
+        'color': str,
+        'clarity': str,
+        'carat': (float, int)
+    }
+
+    for field, field_type in required_fields.items():
+        if field not in data:
+            return False, f"Missing data: {field}"
+        if isinstance(field_type, tuple):
+            if not isinstance(data[field], field_type):
+                return False, f"Incorrect type for {field}. Expected {field_type[0].__name__}."
+        else:
+            if not isinstance(data[field], field_type):
+                return False, f"Incorrect type for {field}. Expected {field_type.__name__}."
+
+    return True, None
+
+# validate the data type for the predict endpoint
+
+
+def validate_predict_diamond_value(data):
+    required_fields = {
+        'carat': (float, int),
+        'cut': str,
+        'color': str,
+        'clarity': str,
+        'depth': (float, int),
+        'table': (float, int),
+        'x': (float, int),
+        'y': (float, int),
+        'z': (float, int)
+    }
+
+    for field, field_type in required_fields.items():
+        if field not in data:
+            return False, f"Missing data: {field}"
+        if isinstance(field_type, tuple):
+            if not isinstance(data[field], field_type):
+                return False, f"Incorrect type for {field}. Expected {field_type[0].__name__}."
+        else:
+            if not isinstance(data[field], field_type):
+                return False, f"Incorrect type for {field}. Expected {field_type.__name__}."
+
+    return True, None
 
 
 if __name__ == '__main__':

@@ -107,53 +107,54 @@ The predictions are made with the last xgb trained model.
 
 - endpoint : '/predict'
 - method: POST
-- request example:
+- request:
 ```JSON
 {
-    "carat": 0.3,
-    "cut": "Ideal",
-    "color": "E",
-    "clarity": "SI2",
-    "depth": 61.1,
-    "table": 56.0,
-    "x": 3.90,
-    "y": 4.03,
-    "z": 2.45
+    "carat": float,
+    "cut": string,
+    "color": string,
+    "clarity": string,
+    "depth": float,
+    "table": float,
+    "x": float,
+    "y": float,
+    "z": float
 }
 ```
-- response example:
+- response:
 ```JSON
 {
-    "predicted_price" : "320"
+    "predicted_price" : int
 }
 ```
 
 #### Get similar diamonds
 - endpoint: '/similar-diamonds
 - method: POST
-- request example: 
+- request: 
 ```JSON
 {
-    "carat": 0.3,
-    "cut": "Ideal",
-    "color": "E",
-    "clarity": "SI2"
+    "n": int,
+    "carat": float,
+    "cut": string,
+    "color": string,
+    "clarity": string
 }
 ```
-- response example:
+- response:
 ```JSON
 [
     {
-        "carat": 0.3,
-        "cut": "Ideal",
-        "color": "E",
-        "clarity": "SI2",
-        "depth": 61.1,
-        "table": 56.0,
-        "price": 764,
-        "x": 3.90,
-        "y": 4.03,
-        "z": 2.45
+        "carat": int,
+        "cut": string,
+        "color": string,
+        "clarity": string,
+        "depth": float,
+        "table": float,
+        "price": float,
+        "x": float,
+        "y": float,
+        "z": float
     },
     ...
 ]

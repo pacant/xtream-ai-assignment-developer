@@ -209,7 +209,7 @@ def get_latest_model(model_type, directory='models'):
     return joblib.load(latest_model_path)
 
 
-def get_similar_diamonds(diamonds, cut, color, clarity, carat, n=6):
+def get_similar_diamonds(diamonds, cut, color, clarity, carat, n):
     diamonds_sorted = diamonds.copy()
 
     diamonds_sorted['carat_diff'] = np.abs(diamonds_sorted['carat'] - carat)
