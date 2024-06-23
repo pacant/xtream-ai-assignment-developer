@@ -2,7 +2,10 @@ Flask
 pandas
 numpy
 scikit-learn
-SQLAlchemy
+flask_sqlalchemy
 xgboost
 joblib
 optuna
+Flask-Testing
+requests
+tox

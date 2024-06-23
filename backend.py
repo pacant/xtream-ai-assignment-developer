@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
+import os
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from utils import get_latest_model, preprocessing_xgb, get_similar_diamonds
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///requests_responses.db'
+# set the database URI to the value of the DATABASE_URI environment variable (test or production db)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URI', 'sqlite:///requests_responses.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -84,6 +87,7 @@ def predict_diamond_value():
     response = {'predicted_price': f"{int(predicted_price)}$"}
 
     save_request_response(f'/predict', data, response)
+
     return jsonify(response)
 
 # given the features of a diamond, return n samples from the training dataset with the same cut, color, and clarity, and the most similar weight.

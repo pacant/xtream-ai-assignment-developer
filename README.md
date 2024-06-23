@@ -94,7 +94,8 @@ python pipeline.py [--csv CSV_file]
 The trained models will be saved into _models_ directory.
 ### 3. Run the server
 ```bash
-python backend.py
+chmod +x run.sh
+./run.sh
 ```
 The server will be available at http://127.0.0.1:5000/.
 
@@ -145,13 +146,13 @@ The predictions are made with the last xgb trained model.
 ```JSON
 [
     {
-        "carat": int,
+        "carat": float,
         "cut": string,
         "color": string,
         "clarity": string,
         "depth": float,
         "table": float,
-        "price": float,
+        "price": int,
         "x": float,
         "y": float,
         "z": float
@@ -162,6 +163,17 @@ The predictions are made with the last xgb trained model.
 
 You can simulate the API calls with Postman or Curl.
 
+### 5. API Test
+For testing the API:
+```bash
+tox
+```
+Tox will run 3 tests for each defined endpoint using an isolated testing environment:
+- successfull request
+- missing data 
+- wrong datatype
+
+Test are defined in _test_app.py_.
 ### Some considerations
 - The predictions in the API calls are made with xgb with optimized hyperparameters, this is for two reasons:
     - to not let the developer choose the model (and xgb has better metrics).
